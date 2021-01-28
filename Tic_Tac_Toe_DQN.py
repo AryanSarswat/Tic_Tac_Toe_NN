@@ -215,6 +215,7 @@ def main():
             optimizer.step()
         loss_array.append(output.item())       
 
+    #Printing Graph of Loss Function
     plt.plot(loss_array)
     plt.title(f"$\\epsilon=$ {epsilon} , $\\gamma=$ {gamma} ")
     plt.show()
@@ -222,6 +223,7 @@ def main():
 
 
 if __name__ == '__main__':
+    #Hyper Parameter Tuning
     for i in epsilon_val:
         for j in gamma_val:
             gamma = j
