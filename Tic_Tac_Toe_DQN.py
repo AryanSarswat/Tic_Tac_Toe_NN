@@ -218,6 +218,8 @@ def main():
     #Printing Graph of Loss Function
     plt.plot(loss_array)
     plt.title(f"$\\epsilon=$ {epsilon} , $\\gamma=$ {gamma} ")
+    plt.xlabel("Iterations")
+    plt.ylabel("MSE Loss")
     plt.show()
 
 
