@@ -21,6 +21,7 @@ HyperParameters
 """
 epsilon_val = [0.1,0.2,0.3,0.4,0.5]
 gamma_val = [1,0.95,0.9,0.85,0.8]
+alpha_val = [0.01,0.05,0.1,0.15,0.2]
 
 X = "X"
 O = "O"
@@ -30,6 +31,7 @@ gamma = 0.90
 EPOCHS = 500
 BATCH_SIZE = 5
 m_x = -epsilon/EPOCHS
+ALPHA = 0.1
 
 def initial_state():
     """
@@ -203,31 +205,44 @@ def main():
                     actual_q_values.append(1*(gamma**j))
             elif win == O:
                 for j in range(len(q_values)):
-                    actual_q_values.append(-1*(gamma**j))             
+                    actual_q_values.append(-1*(gamma**j))
             else:
                 actual_q_values = [0 for j in range(len(q_values))]
-            
+
+            actual_q_values = actual_q_values[::-1]
+            q_new = [0 for i in range(len(q_values))]
+            for q in range(len(q_values)-1):
+                q_new[q] = q_values[q] + ALPHA*(actual_q_values[q+1]- q_values[q])
+
             q_values = torch.tensor(q_values,requires_grad=True)
-            actual_q_values = torch.Tensor(actual_q_values[::-1])
+            q_new = torch.Tensor(q_new)
             loss = torch.nn.MSELoss(reduction="mean")
-            output = loss(q_values,actual_q_values)
+            output = loss(q_values,q_new)
             output.backward()
             optimizer.step()
         loss_array.append(output.item())       
 
-    #Printing Graph of Loss Function
+    '''
     plt.plot(loss_array)
-    plt.title(f"$\\epsilon=$ {epsilon} , $\\gamma=$ {gamma} ")
+    plt.title(f"$\\epsilon=$ {epsilon} , $\\gamma=$ {gamma} , $\\alpha=$ {ALPHA}")
     plt.xlabel("Iterations")
-    plt.ylabel("MSE Loss")
+    plt.ylabel("Loss")
     plt.show()
-
+    '''
+    return loss_array[-1]
 
 
 if __name__ == '__main__':
-    #Hyper Parameter Tuning
+    training = {}
     for i in epsilon_val:
         for j in gamma_val:
-            gamma = j
-            epsilon = i
-            main()
+            for k in alpha_val:
+                gamma = j
+                epsilon = i
+                ALPHA = k
+                string = f"Gamma is {gamma}, Epsilon is {epsilon}, Alpha is {ALPHA}"
+                loss = main()
+                training[loss] = string
+    
+    losses = training.keys()
+    print(training[min(losses)])
