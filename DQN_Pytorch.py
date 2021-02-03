@@ -84,7 +84,7 @@ class Agent():
                         elif player(self.current_state) == O:
                             index = np.argmin(q_next)
                     #index = np.random.randint(0,len(q_next))
-                    q_target= q_eval + (self.lr*(utility(self.current_state) + self.gamma*q_next[index] - q_eval))
+                    q_target= q_eval + (self.lr*(utility(possible_states[index]) + self.gamma*q_next[index] - q_eval))
                     loss = self.Q_policy.loss(q_target,q_eval).to(self.Q_policy.device)
                     loss.backward()
                     self.Q_policy.optimizer.step()
